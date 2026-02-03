@@ -1,39 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Weather App</title>
-    <div style="text-align: right;">
-      Prototype<br>By: Suyogya Gautam
-    </div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Weather App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --accent: #00d2ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0c29;
+      background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+      background-image: url('background.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-primary);
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px;
+      perspective: 1000px;
+    }
+
+    .weather-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+
+    .location-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .location-info h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .location-info p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      font-weight: 300;
+    }
+
+    .main-weather {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .weather-icon-container {
+      margin: 20px 0;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+    }
+
+    .weather-icon-container img {
+      width: 120px;
+      height: 120px;
+    }
+
+    .temp-display {
+      font-size: 5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .temp-display span {
+      font-size: 2rem;
+      margin-top: 15px;
+      font-weight: 400;
+    }
+
+    .description {
+      font-size: 1.3rem;
+      text-transform: capitalize;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+
+    .weather-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      border-top: 1px solid var(--glass-border);
+      padding-top: 30px;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 20px;
+      transition: background 0.3s ease;
+    }
+
+    .detail-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-item i {
+      font-size: 1.5rem;
+      margin-right: 15px;
+      color: var(--accent);
+    }
+
+    .detail-text h4 {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-bottom: 2px;
+    }
+
+    .detail-text p {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+    }
+  </style>
 </head>
-<body style="background-image: url(https://i.ibb.co/r077wYL/background.png); text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <h1 style="font-size: 80px;">Weather in Kathmandu, NP</h1>
-    <div style="font-size: 25px;">
-      <p id="date"></p>
+
+<body>
+  <div class="loading-overlay" id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="container">
+    <div class="weather-card">
+
+
+      <div class="location-info">
+        <h1 id="cityName">Kathmandu</h1>
+        <p id="dateDisplay"></p>
+      </div>
+
+      <div class="main-weather">
+        <div class="weather-icon-container" id="iconContainer">
+          <img src="" alt="weather icon" id="weatherIcon">
+        </div>
+        <div class="temp-display" id="tempDisplay">24<span>&deg;C</span></div>
+        <p class="description" id="weatherDesc">Clear Sky</p>
+      </div>
+
+      <div class="weather-details">
+        <div class="detail-item">
+          <i class="fas fa-temperature-high"></i>
+          <div class="detail-text">
+            <h4>Feels Like</h4>
+            <p id="feelsLike">26&deg;C</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-tint"></i>
+          <div class="detail-text">
+            <h4>Humidity</h4>
+            <p id="humidity">45%</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-wind"></i>
+          <div class="detail-text">
+            <h4>Wind Speed</h4>
+            <p id="windSpeed">12 km/h</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-compress-arrows-alt"></i>
+          <div class="detail-text">
+            <h4>Pressure</h4>
+            <p id="pressure">1012 hPa</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div>
-      <span class="maintemp" style="font-size: 40px;">Please Wait...</span><sup style="font-size: 40px;">&deg;</sup>
-    </div>
-    <br>
-    <div style="font-size: 21px;">Maximum/Minimum: 
-      <span class="maxtemp">Please wait...</span><sup>&deg;</sup>/
-      <span class="mintemp"></span><sup>&deg;</sup>
-    </div>
-    <div style="font-size: 20px;">Feels Like: 
-      <span class="feelslike">Please Wait...</span><sup>&deg;</sup>
-    </div>
-    <div style="font-size: 20px;">Humidity: 
-      <span class="humidity">Please Wait...</span>%
-    </div>
-    <br>
-    <div style="font-family: sans-serif; font-size: 22px; text-transform: capitalize;">
-      <span class="description"></span>
-    </div>
-    <span id="icon"></span>
-    <script src="2059802_WeatherApp_Prototype1.js">
-  </script>
+  </div>
+
+  <script src="2059802_WeatherApp_Prototype1.js"></script>
 </body>
+
 </html>

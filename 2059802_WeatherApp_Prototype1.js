@@ -1,37 +1,40 @@
-var today = new Date();
-var date = today.getDate()+'-'+(today.getMonth()+1)+'-'+today.getFullYear(); //this gives todays date with day,month and year
-document.getElementById("date").innerHTML = date
-  // Fetch Kathmandu weather data from Open Weather API
-fetch('https://api.openweathermap.org/data/2.5/weather?q=Kathmandu&appid=9190fa609f85c486abf5e59e0ee10b24')
+const apiKey = '9190fa609f85c486abf5e59e0ee10b24';
+const loader = document.getElementById('loader');
 
-// Convert response string to json object
-.then(response => response.json())
-.then(response => {
+async function fetchWeather(city) {
+  loader.style.display = 'flex';
+  try {
+    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+    if (!response.ok) throw new Error('City not found');
+    const data = await response.json();
+    updateUI(data);
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    loader.style.display = 'none';
+  }
+}
 
-// Display whole API response in browser console
-console.log(response);
-    
-//Converting Temperature values from Kelvin to Celcius
-var maintemp = parseInt((response.main.temp) - 273.15)
-var maxtemp = parseInt((response.main.temp_max) - 273.15)
-var mintemp = parseInt((response.main.temp_min) - 273.15)
-var feelslike = parseInt((response.main.feels_like) - 273.15)
+function updateUI(data) {
+  document.getElementById('cityName').textContent = `${data.name}, ${data.sys.country}`;
+  document.getElementById('dateDisplay').textContent = formatDate(new Date());
+  document.getElementById('tempDisplay').innerHTML = `${Math.round(data.main.temp)}<span>&deg;C</span>`;
+  document.getElementById('weatherDesc').textContent = data.weather[0].description;
+  document.getElementById('feelsLike').textContent = `${Math.round(data.main.feels_like)}°C`;
+  document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+  document.getElementById('windSpeed').textContent = `${data.wind.speed} km/h`;
+  document.getElementById('pressure').textContent = `${data.main.pressure} hPa`;
 
-//Putting elemets of responce to HTML paragraphs
-document.querySelector(".maintemp").innerHTML = maintemp
-document.querySelector(".maxtemp").innerHTML = maxtemp
-document.querySelector(".mintemp").innerHTML = mintemp
-document.querySelector(".feelslike").innerHTML = feelslike
-document.querySelector(".humidity").innerHTML = response.main.humidity
-document.querySelector(".description").innerHTML = response.weather[0].description
+  const iconCode = data.weather[0].icon;
+  const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+  document.getElementById('weatherIcon').src = iconUrl;
+}
 
-//Calling icons according to weather
-const icon= response["weather"][0]["icon"];
-document.getElementById("icon").innerHTML="<img src='http://openweathermap.org/img/wn/"+icon+".png'>"
-    
-})
-.catch(err => {
+function formatDate(date) {
+  const options = { weekday: 'long', day: 'numeric', month: 'long' };
+  return date.toLocaleDateString('en-US', options);
+}
 
-// Display errors in console
-console.log(err);
-});		
+window.onload = () => {
+  fetchWeather('Kathmandu');
+};
